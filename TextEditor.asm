@@ -80,3 +80,23 @@ move macro row, col
     mov dl, col
     int 10h
 endm
+
+;:::functions:::;
+;This function print the open screen and the options list
+;Input - None
+;Output - None
+main_menu proc	
+;open screen:
+	mov ax, offset main_open
+	push ax
+	call print
+	pop ax 	      
+	
+;options list
+	mov ax, offset main_options
+	push ax
+	call print
+	pop ax		                 	        
+	
+	ret
+main_menu endp
