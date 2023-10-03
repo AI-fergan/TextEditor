@@ -180,3 +180,14 @@ print proc
     
     ret                 
 print endp
+
+;This function clear the screen
+;Input  - None
+;Output - None
+cls proc
+  mov ah, 0x00
+  mov al, 0x03
+  int 0x10  
+  
+  ret
+cls endp
