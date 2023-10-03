@@ -133,3 +133,50 @@ newfile_menu proc
 	
 	ret                
 newfile_menu endp
+
+;This function print given string from the stack into the screen
+;Input - string in the string (define) place of the stack for print
+;Output - None
+print proc
+    push bp
+    push bx
+    mov bp, sp          
+                  
+    mov bx, 0
+    mov bx, [bp + string]
+    
+;print all the string  chars
+    output:                                                   
+    	mov al, [bx]
+    	
+    	cmp al, '%'
+    	je cont_1
+    	
+    	cmp al, '$' 
+    	je stop
+    	
+    	cmp al, '#'
+    	je pass_stop
+    	    	
+    	putch al            
+    	
+    	jmp cont_2
+    	
+    	cont_1:
+    		enter
+    		
+    	cont_2:
+    		inc bx
+    		jmp output
+
+;if the strings end with $ the enter new line    	
+    stop:
+    	enter    
+
+;if the string end with # continu in the same line    	
+    pass_stop:
+    	pop bx ;Restore the base pointer
+    	pop bp
+    
+    ret                 
+print endp
