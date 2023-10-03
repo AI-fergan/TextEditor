@@ -35,4 +35,48 @@ string equ 6
 inputCH equ 4
 
 ;getstr function:
-strIn equ 6               
+strIn equ 6    
+
+;:::macro:::;
+;Get char from the user input into the ax Register
+getch macro
+    mov ax, 0
+    mov ah, 0x01   
+    int 0x21
+    
+endm
+
+;Put char into the screen
+putch macro char
+	mov ah, 0eh
+	mov al, char
+	int 10h
+endm
+
+;Enter to new line
+enter macro
+    push bp
+    push dx
+    mov bp, sp
+
+;enter to new line    
+    mov dx, 10
+    mov ah, 2
+    int 21h
+
+;back to start of the line    
+    mov dx, 13
+    mov ah, 2
+    int 21h
+    
+    mov sp, bp
+    pop dx
+    pop bp
+endm 
+
+move macro row, col
+    mov ah, 02h      ;set text position in middle screen
+    mov dh, row
+    mov dl, col
+    int 10h
+endm
