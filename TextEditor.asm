@@ -100,3 +100,36 @@ main_menu proc
 	
 	ret
 main_menu endp
+
+newfile_menu proc
+;open screen:	
+	push ax
+	push cx
+	push si
+	
+	mov ax, offset newfile_open
+	push ax	
+	call print
+	pop ax	
+	
+ 	mov cx, 25
+ 	mov si, offset filename
+ 	
+;get file name 	
+	file_name:
+		getch
+
+		cmp al, 0x0D
+		je ENTER
+	
+	 	mov [si], al
+	    inc si
+	    loop file_name
+	    
+	ENTER:	
+		pop si
+		pop cx
+		pop ax
+	
+	ret                
+newfile_menu endp
