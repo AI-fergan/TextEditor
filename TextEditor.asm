@@ -225,3 +225,41 @@ getstr proc
 	
 	ret	
 getstr endp	
+
+;:::MAIN:::;         
+MAIN proc 
+	op dw 0
+	mov ax, @data	
+	mov ds, ax
+	
+	mov ax, offset filename
+	push ax
+	call getstr
+	pop ax
+	
+	
+	call cls  
+	call main_menu
+	
+;option      
+	getch
+	sub al, '0'
+	
+	newfile_sec:
+		cmp al, 0x01 
+		jne openfile_sec
+		
+		call cls
+		call newfile_menu		
+	    jmp end_prog
+	    
+	openfile_sec:
+		cmp al, 0x02
+		jne end_prog
+			
+	    jmp end_prog
+	    
+	end_prog:
+		
+MAIN endp                 
+end MAIN 
