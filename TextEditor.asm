@@ -35,8 +35,14 @@ string equ 6
 inputCH equ 4
 
 ;getstr function:
-strIn equ 6    
+strIn equ 6  
 
+;editfile function:
+filenameP equ 6
+          
+;getsize function:
+strCsize equ 6
+          
 ;:::macro:::;
 ;Get char from the user input into the ax Register
 getch macro
@@ -129,6 +135,28 @@ newfile_menu proc
 	ret                
 newfile_menu endp
 
+editfile proc
+	push bp
+	push ax
+	push si   
+	push di
+	mov bp, sp      
+	
+	mov si, [bp + filenameP] 
+	mov di, si
+	
+	putch '/'
+	
+		
+			
+	pop di	      
+	pop si
+	pop ax
+	pop bp
+	            
+	ret	            
+editfile endp	
+
 ;This function print given string from the stack into the screen.
 ;Input - string in the string (define) place of the stack for print
 ;Output - None
@@ -190,7 +218,7 @@ cls proc
 cls endp
 
 ;This function getstr (max size 25) from the user.
-;Input - offset of the var that need to contain the name of the file
+;Input - offset of the var that need to contain the str
 ;output - var with the str from the user
 getstr proc
 	push bp
@@ -233,12 +261,58 @@ getstr proc
 	ret	
 getstr endp	
 
+;This function return the size of str.
+;Input - offset of the var that contain the str            
+;Output - the size of the str in the 'ax' Register
+getsize proc
+	push bp
+	push si
+	mov bp, sp
+	
+;get the offset of the var	
+	mov si, [bp + strCsize]
+	mov ax, 0
+
+;loop on the str	
+	size:          
+;check if this is the last char in the str	
+		cmp [si], 0x00
+		je Esize
+
+;go to the next char and inc the count of the size		
+		inc ax
+		inc si
+
+;check if the format of the string isnt correct		
+		cmp ax, 25
+		je Esize
+		
+		jmp size
+
+;end of the check		
+	Esize:		
+		pop si   
+		pop bp	   
+	
+	ret
+getsize endp	            
+            
 ;:::MAIN:::;         
 MAIN proc 
 ;set the Data segment
 	mov ax, @data	
 	mov ds, ax	
 	
+	mov ax, offset filename
+	push ax
+	call getstr
+	pop ax
+	
+	push ax
+	call getsize 
+	int 3
+	pop ax
+
 	call cls  
 	call main_menu
 	
