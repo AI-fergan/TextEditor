@@ -37,8 +37,8 @@ inputCH equ 4
 ;getstr function:
 strIn equ 6  
 
-;editfile function:
-filenameP equ 6
+;editfile_screen function:
+filenameP equ 8
           
 ;getsize function:
 strCsize equ 6
@@ -135,27 +135,70 @@ newfile_menu proc
 	ret                
 newfile_menu endp
 
-editfile proc
+editfile_screen proc
 	push bp
 	push ax
-	push si   
-	push di
+	push bx
+	push cx
 	mov bp, sp      
 	
-	mov si, [bp + filenameP] 
-	mov di, si
+;get the filename size	
+	mov ax, offset filename	
+	push ax
+	call getsize
+	pop cx
+
+;save the size in another registers	
+	mov cx, ax
+	mov bx, cx
+	add cx, 2    
 	
-	putch '/'
+;print the first line of the title	
+	putch '/' 
+	line_1:
+		putch '-'		
+		loop line_1
+	putch '\'
 	
-		
-			
-	pop di	      
-	pop si
+	enter
+	
+;print the start of the second line of the title		
+	putch '|'
+	putch ' '
+
+;get the filename size	
+	mov cx, bx
+	add cx, 2
+	
+;print the name of the file in the title	
+	mov ax, offset filename
+	push ax
+	call print
 	pop ax
+		        
+;print the end of the second line of the title			        
+	putch '|'
+	putch ' '
+	
+	enter
+
+;print the last line of the title	
+	putch '\' 
+	line_2:
+		putch '-'		
+		loop line_2
+	
+	putch '/'		        
+	
+	enter
+			
+	pop cx
+	pop bx
+	pop cx
 	pop bp
 	            
 	ret	            
-editfile endp	
+editfile_screen endp	
 
 ;This function print given string from the stack into the screen.
 ;Input - string in the string (define) place of the stack for print
@@ -250,7 +293,7 @@ getstr proc
 ;when the input end	
 	endStr:
 		inc si
-		mov [si], 0x00
+		mov [si], '#'
 		
 		pop si
 		pop cx
@@ -301,17 +344,7 @@ getsize endp
 MAIN proc 
 ;set the Data segment
 	mov ax, @data	
-	mov ds, ax	
-	
-	mov ax, offset filename
-	push ax
-	call getstr
-	pop ax
-	
-	push ax
-	call getsize 
-	int 3
-	pop ax
+	mov ds, ax		
 
 	call cls  
 	call main_menu
@@ -327,7 +360,11 @@ MAIN proc
 		
 ;print the newfile menu		
 		call cls
-		call newfile_menu		
+		call newfile_menu
+		
+		call cls
+		call editfile_screen		
+		
 	    jmp end_prog
 	    
 ;openfile option		
