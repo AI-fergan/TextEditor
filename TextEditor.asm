@@ -74,15 +74,16 @@ enter macro
     pop bp
 endm 
 
+;Move to specific position in the screen
 move macro row, col
-    mov ah, 02h      ;set text position in middle screen
+    mov ah, 02h      
     mov dh, row
     mov dl, col
     int 10h
 endm
 
 ;:::functions:::;
-;This function print the open screen and the options list
+;This function print the open screen and the options list.
 ;Input - None
 ;Output - None
 main_menu proc	
@@ -101,40 +102,34 @@ main_menu proc
 	ret
 main_menu endp
 
-newfile_menu proc
-;open screen:	
+;This func print the newfile menu that get the name of the file and open it.
+;Input - offset of the var that need to contain the name of the file
+;output - the name of the file
+newfile_menu proc	
 	push ax
 	push cx
 	push si
 	
+;open screen:
 	mov ax, offset newfile_open
 	push ax	
 	call print
-	pop ax	
-	
- 	mov cx, 25
- 	mov si, offset filename
+	pop ax		
  	
 ;get file name 	
-	file_name:
-		getch
+	mov ax, offset filename
+	push ax
+	call getstr
+	pop ax
 
-		cmp al, 0x0D
-		je ENTER
-	
-	 	mov [si], al
-	    inc si
-	    loop file_name
-	    
-	ENTER:	
-		pop si
-		pop cx
-		pop ax
+	pop si
+	pop cx
+	pop ax
 	
 	ret                
 newfile_menu endp
 
-;This function print given string from the stack into the screen
+;This function print given string from the stack into the screen.
 ;Input - string in the string (define) place of the stack for print
 ;Output - None
 print proc
@@ -148,13 +143,15 @@ print proc
 ;print all the string  chars
     output:                                                   
     	mov al, [bx]
-    	
+;enter new line    	
     	cmp al, '%'
     	je cont_1
-    	
+
+;end print with enter    	
     	cmp al, '$' 
     	je stop
-    	
+
+;end print without enter    	
     	cmp al, '#'
     	je pass_stop
     	    	
@@ -181,7 +178,7 @@ print proc
     ret                 
 print endp
 
-;This function clear the screen
+;This function clear the screen.
 ;Input  - None
 ;Output - None
 cls proc
@@ -192,6 +189,9 @@ cls proc
   ret
 cls endp
 
+;This function getstr (max size 25) from the user.
+;Input - offset of the var that need to contain the name of the file
+;output - var with the str from the user
 getstr proc
 	push bp
 	push ax
@@ -199,20 +199,27 @@ getstr proc
 	push cx
 	push si	
 	mov bp, sp
-	                             
+
+;get the address of the var	                             
 	mov si, [bp + strIn]	
+
+;the max size of the str	
 	mov cx, 24
 	
+;get the str char by char 	
 	get_string:
 		getch
 
+;check if the user 'Enter' to new line
 		cmp al, 0x0D
 		je endStr
 
+;put the new char in the end of the str
 	 	mov [si], al
  	    inc si
   	    loop get_string
 	
+;when the input end	
 	endStr:
 		inc si
 		mov [si], 0x00
@@ -228,31 +235,28 @@ getstr endp
 
 ;:::MAIN:::;         
 MAIN proc 
-	op dw 0
+;set the Data segment
 	mov ax, @data	
-	mov ds, ax
-	
-	mov ax, offset filename
-	push ax
-	call getstr
-	pop ax
-	
+	mov ds, ax	
 	
 	call cls  
 	call main_menu
 	
-;option      
+;get option num from the user
 	getch
 	sub al, '0'
 	
+;newfile option	
 	newfile_sec:
 		cmp al, 0x01 
 		jne openfile_sec
 		
+;print the newfile menu		
 		call cls
 		call newfile_menu		
 	    jmp end_prog
 	    
+;openfile option		
 	openfile_sec:
 		cmp al, 0x02
 		jne end_prog
