@@ -191,3 +191,37 @@ cls proc
   
   ret
 cls endp
+
+getstr proc
+	push bp
+	push ax
+	push bx
+	push cx
+	push si	
+	mov bp, sp
+	                             
+	mov si, [bp + strIn]	
+	mov cx, 24
+	
+	get_string:
+		getch
+
+		cmp al, 0x0D
+		je endStr
+
+	 	mov [si], al
+ 	    inc si
+  	    loop get_string
+	
+	endStr:
+		inc si
+		mov [si], 0x00
+		
+		pop si
+		pop cx
+		pop bx
+		pop ax
+		pop bp
+	
+	ret	
+getstr endp	
