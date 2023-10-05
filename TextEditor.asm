@@ -20,6 +20,8 @@ existfile_open db "/---------------\", '%'
 			   db "|Open exist file|", '%'
                db "\---------------/", '%%'
                db "File Name: ", '#'
+
+exitMSG db "Please enter for exit...", '#'
                               
 text_col dw 0
 text_row dw 0
@@ -373,8 +375,15 @@ MAIN proc
 		jne end_prog
 			
 	    jmp end_prog
-	    
+	     
+;print the exit message and exit	     
 	end_prog:
+	mov ax, offset exitMSG
+	push ax
+	call print
+	pop ax
+	
+	getch
 		
 MAIN endp                 
 end MAIN 
