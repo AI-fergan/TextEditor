@@ -28,6 +28,8 @@ text_row dw 0
 
 filename_col dw 0
 filename db 25 dup(0)
+
+matrix db 25*30 dup(0)
      
 ;:::defines:::; 
 ;print function:
@@ -37,7 +39,8 @@ string equ 6
 inputCH equ 4
 
 ;getstr function:
-strIn equ 6  
+strIn equ 14
+strInMaxSize equ 12
 
 ;editfile_screen function:
 filenameP equ 8
@@ -124,10 +127,13 @@ newfile_menu proc
 	call print
 	pop ax		
  	
-;get file name 	
+;get file name	 	
 	mov ax, offset filename
 	push ax
+	mov ax, 25
+	push ax
 	call getstr
+	pop ax
 	pop ax
 
 	pop si
@@ -277,7 +283,7 @@ getstr proc
 	mov si, [bp + strIn]	
 
 ;the max size of the str	
-	mov cx, 24
+	mov cx, [bp + strInMaxSize]
 	
 ;get the str char by char 	
 	get_string:
@@ -367,6 +373,14 @@ MAIN proc
 		call cls
 		call editfile_screen		
 		
+;input text from the user				
+		mov ax, offset matrix
+		push ax
+		mov ax, 50
+		push ax
+		call getstr
+		pop ax
+		
 	    jmp end_prog
 	    
 ;openfile option		
@@ -378,6 +392,7 @@ MAIN proc
 	     
 ;print the exit message and exit	     
 	end_prog:
+	call cls
 	mov ax, offset exitMSG
 	push ax
 	call print
