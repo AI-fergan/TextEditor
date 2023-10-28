@@ -3,25 +3,25 @@
 ;:::variables:::;
 main_open db "/-----------\", '%'
      	  db "|Text-Editor|", '%'
-     	  db "\-----------/", '%$'
+     	  db "\-----------/", '%$', 0
 
 main_options db "Please enter the num of the option:", '%'
 			 db "1. Create new file", '%'
 			 db "2. Open existing file", '%'
 			 db "3. Exit", '%%'
-			 db "option: ", '#'                              
+			 db "option: ", 0                              
 		
 newfile_open db "/---------------\", '%'
 			 db "|Create new file|", '%'
              db "\---------------/", '%%'
-             db "File Name: ", '#'                       
+             db "File Name: ", 0                       
 
 existfile_open db "/---------------\", '%'
 			   db "|Open exist file|", '%'
                db "\---------------/", '%%'
-               db "File Name: ", '#'
+               db "File Name: ", 0
 
-exitMSG db "Please enter for exit...", '#'
+exitMSG db "Please enter for exit...", 0
                             
 text_col dw 3
 text_row dw 0
@@ -50,11 +50,12 @@ strCsize equ 6
           
 ;:::macro:::;
 ;Get char from the user input into the ax Register
-getch macro 
-	mov ah, 00h
-	int 16h
-    
+getch macro
+    mov ah, 00h
+    int 16h
 endm
+
+
 
 ;Put char into the screen
 putch macro char
@@ -182,10 +183,11 @@ editfile_screen proc
 	push ax
 	call print
 	pop ax
-		        
+        
 ;print the end of the second line of the title			        
-	putch '|'
 	putch ' '
+	putch '|'
+	
 	
 	enter
 
@@ -230,7 +232,7 @@ print proc
     	je stop
 
 ;end print without enter    	
-    	cmp al, '#'
+    	cmp al, 0
     	je pass_stop
     	    	
     	putch al            
@@ -248,7 +250,7 @@ print proc
     stop:
     	enter    
 
-;if the string end with # continu in the same line    	
+;if the string end with NULL(0) continu in the same line    	
     pass_stop:
     	pop bx ;Restore the base pointer
     	pop bp
@@ -287,35 +289,21 @@ getstr proc
 ;get the str char by char 	
 	get_string:
 		getch
+		putch al
 		
-		cmp ah, 0x4B
-		je LEFT_ARROW
-		
-		cmp ah, 0x4D
-		je RIGHT_ARROW
-				
-
 ;check if the user 'Enter' to new line
 		cmp al, 0x0D
 		je endStr
 
 ;put the new char in the end of the str
 		mov [si], al
-	 	           
-	 	RIGHT_ARROW:
- 	    	inc si
- 	    	jmp con_input
- 	    	
- 	    Left_ARROW:
- 	    	dec si
- 	    	
+	 	inc si
  	    con_input: 
   	    	loop get_string
 	
 ;when the input end	
 	endStr:
-		inc si
-		mov [si], '#'
+		mov [si], 0
 		
 		pop si
 		pop cx
@@ -372,6 +360,7 @@ MAIN proc
 	call main_menu
 	
 ;get option num from the user
+	mov si, 0
 	getch
 	sub al, '0'
 	
@@ -413,8 +402,6 @@ MAIN proc
 	pop ax
 	
 	getch
-	mov ax, 0x01
-	int 0x80
 		
 MAIN endp                 
 end MAIN 
