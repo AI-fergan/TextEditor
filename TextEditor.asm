@@ -42,6 +42,10 @@ inputCH equ 4
 strIn equ 14
 strInMaxSize equ 12
 
+;getMatrix function:
+matOffset equ 14
+matSize equ 12
+
 ;editfile_screen function:
 filenameP equ 8
           
@@ -298,7 +302,6 @@ getstr proc
 ;put the new char in the end of the str
 		mov [si], al
 	 	inc si
- 	    con_input: 
   	    	loop get_string
 	
 ;when the input end	
@@ -313,6 +316,58 @@ getstr proc
 	
 	ret	
 getstr endp	
+
+getMatrix PROC
+	push bp
+	push ax
+	push bx
+	push cx
+	push si	
+	mov bp, sp
+
+;get the address of the var	                             
+	mov si, [bp + matOffset]	
+
+;the max size of the str	
+	mov cx, [bp + matSize]
+	
+;get the str char by char 	
+	get_mat:
+		getch
+		
+		
+;check if the user 'Enter' to new line		
+		cmp al, 0x0D
+		jne conMat
+		
+		mov [si], 10
+		inc si
+		mov [si], 13
+		inc si
+		enter
+		
+		jmp con_input
+				
+;put the new char in the end of the str
+		conMat:
+			putch al 
+			mov [si], al
+		 	inc si
+		 	con_input: 	        
+	  	    	loop get_mat
+	
+;when the input end	
+	endMat:
+		mov [si], 0
+		
+		pop si
+		pop cx
+		pop bx
+		pop ax
+		pop bp
+	
+	ret	
+getMatrix ENDP	
 
 ;This function return the size of str.
 ;Input - offset of the var that contain the str            
@@ -360,7 +415,6 @@ MAIN proc
 	call main_menu
 	
 ;get option num from the user
-	mov si, 0
 	getch
 	sub al, '0'
 	
