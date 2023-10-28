@@ -22,8 +22,8 @@ existfile_open db "/---------------\", '%'
                db "File Name: ", '#'
 
 exitMSG db "Please enter for exit...", '#'
-                              
-text_col dw 0
+                            
+text_col dw 3
 text_row dw 0
 
 filename_col dw 0
@@ -50,10 +50,9 @@ strCsize equ 6
           
 ;:::macro:::;
 ;Get char from the user input into the ax Register
-getch macro
-    mov ax, 0
-    mov ah, 0x01   
-    int 0x21
+getch macro 
+	mov ah, 00h
+	int 16h
     
 endm
 
@@ -288,15 +287,30 @@ getstr proc
 ;get the str char by char 	
 	get_string:
 		getch
+		
+		cmp ah, 0x4B
+		je LEFT_ARROW
+		
+		cmp ah, 0x4D
+		je RIGHT_ARROW
+				
 
 ;check if the user 'Enter' to new line
 		cmp al, 0x0D
 		je endStr
 
 ;put the new char in the end of the str
-	 	mov [si], al
- 	    inc si
-  	    loop get_string
+		mov [si], al
+	 	           
+	 	RIGHT_ARROW:
+ 	    	inc si
+ 	    	jmp con_input
+ 	    	
+ 	    Left_ARROW:
+ 	    	dec si
+ 	    	
+ 	    con_input: 
+  	    	loop get_string
 	
 ;when the input end	
 	endStr:
@@ -399,6 +413,8 @@ MAIN proc
 	pop ax
 	
 	getch
+	mov ax, 0x01
+	int 0x80
 		
 MAIN endp                 
 end MAIN 
