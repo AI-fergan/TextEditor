@@ -60,7 +60,6 @@ getch macro
 endm
 
 
-
 ;Put char into the screen
 putch macro char
 	mov ah, 0eh
@@ -75,12 +74,12 @@ enter macro
     mov bp, sp
 
 ;enter to new line    
-    mov dx, 10
+    mov dx, 0x0A
     mov ah, 2
     int 21h
 
 ;back to start of the line    
-    mov dx, 13
+    mov dx, 0x0D
     mov ah, 2
     int 21h
     
@@ -325,30 +324,37 @@ getMatrix PROC
 	push si	
 	mov bp, sp
 
-;get the address of the var	                             
+;get the address of the Matrix	                             
 	mov si, [bp + matOffset]	
 
-;the max size of the str	
+;the max size of the Matrix	
 	mov cx, [bp + matSize]
 	
-;get the str char by char 	
+;get the Matrix char by char 	
 	get_mat:
 		getch
 		
 		
 ;check if the user 'Enter' to new line		
 		cmp al, 0x0D
-		jne conMat
+		je NewLineMat
 		
-		mov [si], 10
-		inc si
-		mov [si], 13
-		inc si
-		enter
+;check if the user press 'CTRL + S' (file save key)		
+		cmp al, 0x13
+		je endMat
 		
-		jmp con_input
+		jmp conMat
+		 		
+		NewLineMat:
+			mov [si], 0x0A
+			inc si
+			mov [si], 0x0D
+			inc si
+			enter
+			
+			jmp con_input
 				
-;put the new char in the end of the str
+;put the new char in the end of the Matrix
 		conMat:
 			putch al 
 			mov [si], al
@@ -435,7 +441,7 @@ MAIN proc
 		push ax
 		mov ax, 50
 		push ax
-		call getstr
+		call getMatrix
 		pop ax
 		
 	    jmp end_prog
