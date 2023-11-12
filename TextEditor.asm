@@ -415,38 +415,37 @@
 	
 	create_file proc
 		push bp
-		push si
 		push bx
 		push cx
 		push dx
 		mov bp, sp
 		
-		mov ah, 3Ch         ; DOS function for creating or opening a file
-	    mov cx, 0          ; File attribute (0 for normal file)
-	    lea dx, [filename]  ; Load the address of the filename
+		;open \ create file by filename
+		mov ah, 3Ch         
+	    mov cx, 0          
+	    lea dx, [filename]  
 	    int 21h
 	    
-	    ; Store the file handle
+	    ;Store the file handle
 	    mov [file], ax
 	
-	    ; File opened or created successfully, now you can do other operations like writing to the file
-	    
-	    mov ah, 40h       ; DOS function code for writing to a file
-        mov bx, file      ; File handle
-        mov dx, offset matrix ; Pointer to the ASCIIZ string to write
+	    ;write content that store in the matrix var into the file
+	    mov ah, 40h       
+        mov bx, file      
+        mov dx, offset matrix
         mov cx, 50
         int 21h 
     
-	    ; Close the file
-	    mov ah, 3Eh         ; DOS function for closing a file
+	    ;Close the file
+	    mov ah, 3Eh       
 	    mov bx, [file]
 	    int 21h 
 		
 		pop dx
 		pop cx
 		pop bx
-		pop si
 		pop bp
+		
 		ret
 	create_file endp
 	            
