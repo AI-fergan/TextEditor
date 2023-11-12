@@ -531,9 +531,8 @@
 			call cls
 			call newfile_menu
 			
-			call read_file
-			
 			call cls
+			call read_file
 			call editfile_screen		
 			
 	;input text from the user				
