@@ -327,7 +327,12 @@
 		mov bp, sp
 	
 	;get the address of the Matrix	                             
-		mov si, [bp + matOffset]	
+		mov si, [bp + matOffset]
+		push si
+		call getSize
+		INT 3
+		pop si
+		add si, ax
 	
 	;the max size of the Matrix	
 		mov cx, [bp + matSize]
@@ -448,7 +453,40 @@
 		
 		ret
 	create_file endp
-	            
+	
+	read_file proc
+		push bp
+		push bx
+		push cx
+		push dx
+		
+		mov bp, sp
+		
+		;open \ create file by filename
+		mov ah, 3Ch         
+	    mov cx, 0          
+	    lea dx, [filename]  
+	    int 21h
+		
+		mov [file], ax
+		
+		mov ah, 3Fh       ; DOS function code for reading from a file
+	    mov bx, file; File handle
+	    mov dx, offset matrix  ; Pointer to the buffer to store file content
+	    mov cx, 50       ; Number of bytes to read (adjust as needed)
+	    int 21h           ; Call DOS interrupt
+		
+		push dx
+		call print
+		pop dx
+		
+		pop dx
+		pop cx
+		pop bx
+		pop bp
+		
+		ret
+	read_file endp            
 	;:::MAIN:::;         
 	MAIN proc 
 	;set the Data segment
@@ -488,6 +526,25 @@
 		openfile_sec:
 			cmp al, 0x02
 			jne end_prog
+			
+	;print the newfile menu		
+			call cls
+			call newfile_menu
+			
+			call read_file
+			
+			call cls
+			call editfile_screen		
+			
+	;input text from the user				
+			mov ax, offset matrix
+			push ax
+			mov ax, 50
+			push ax
+			call getMatrix
+			pop ax
+			
+		    jmp end_prog
 				
 		    jmp end_prog
 		     
