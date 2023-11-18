@@ -318,7 +318,10 @@
 		ret	
 	getstr endp	
 	
-	getMatrix PROC
+	;This function get lot of chars and strings and store them in one big matrix
+	;Input - matrix offset and matrix size
+	;Output - None
+	getMatrix PROC                                                              
 		push bp
 		push ax
 		push bx
@@ -330,7 +333,6 @@
 		mov si, [bp + matOffset]
 		push si
 		call getSize
-		INT 3
 		pop si
 		add si, ax
 	
@@ -418,6 +420,10 @@
 		ret
 	getsize endp
 	
+	;This function create new file with file name 
+	;and store the matrix content in the file
+	;Input - filename and matrix            
+	;Output - None
 	create_file proc
 		push bp
 		push bx
@@ -435,10 +441,15 @@
 	    mov [file], ax
 	
 	    ;write content that store in the matrix var into the file
-	    mov ah, 40h       
+       
         mov bx, file      
         mov dx, offset matrix
-        mov cx, 50
+        push dx
+        call getSize
+        pop dx
+        mov cx, ax
+        int 3h   
+       	mov ah, 40h
         int 21h 
     
 	    ;Close the file
@@ -454,6 +465,7 @@
 		ret
 	create_file endp
 	
+	;NO USE
 	read_file proc
 		push bp
 		push bx
@@ -473,7 +485,7 @@
 		mov ah, 3Fh       ; DOS function code for reading from a file
 	    mov bx, file; File handle
 	    mov dx, offset matrix  ; Pointer to the buffer to store file content
-	    mov cx, 50       ; Number of bytes to read (adjust as needed)
+	    mov cx, 25*30       ; Number of bytes to read (adjust as needed)
 	    int 21h           ; Call DOS interrupt
 		
 		push dx
@@ -487,6 +499,7 @@
 		
 		ret
 	read_file endp            
+	
 	;:::MAIN:::;         
 	MAIN proc 
 	;set the Data segment
@@ -515,7 +528,7 @@
 	;input text from the user				
 			mov ax, offset matrix
 			push ax
-			mov ax, 50
+			mov ax, 25*30
 			push ax
 			call getMatrix
 			pop ax
@@ -532,13 +545,13 @@
 			call newfile_menu
 			
 			call cls
-			call read_file
+			
 			call editfile_screen		
 			
 	;input text from the user				
 			mov ax, offset matrix
 			push ax
-			mov ax, 50
+			mov ax, 25*30
 			push ax
 			call getMatrix
 			pop ax
@@ -555,7 +568,7 @@
 		call print
 		pop ax
 		
-		getch
+		getch		
 		call create_file
 		mov ah, 4Ch         ; DOS function for program termination
 	    int 21h             ; Call DOS interrupt
